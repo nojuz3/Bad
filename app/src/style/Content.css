@@ -1,0 +1,52 @@
+.content{
+    height: 93vh;
+}
+.content-container {
+    display: flex;
+    position: fixed;
+    margin: auto;
+    top: -15rem; left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    height: 30vh;
+    width: 50vw;
+    flex-direction: column;
+    width: 300px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    gap: 10px;
+    
+
+}
+.form-textarea{
+    resize: none;
+}
+.form-submit{
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #00adcc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.form-submit:hover{
+    background-color: #008b9e;
+}
+.mytickets{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 35vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 5px solid #ccc;
+    box-sizing: border-box;
+}
+.ticket{
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: white;
+}

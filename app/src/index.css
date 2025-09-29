@@ -1,0 +1,9 @@
+@import url('../src/style/Login.css');
+@import url('../src/style/Nav.css');
+@import url('../src/style/Content.css');
+
+*{
+    font-family: 'Arial', sans-serif;
+}
+#root{
+}
