@@ -9,7 +9,7 @@ const cors = require("cors");
 app.use(express.json());
 
 const PORT = process.env.PORT || 8080;
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || JSW;
 
 // Create Table of users
 db.prepare(
@@ -131,8 +131,11 @@ app.get("/me", authenticateToken, (req, res) => {
   res.json({ success: true, user });
 });
 
+// ticket creation
+
 app.post("/tickets", authenticateToken, (req, res) => {
   const { title, description } = req.body;
+  if( title == "" || description == "") return;
 
   db.prepare(
     "INSERT INTO tickets (title, description, rating, responded, user_id) VALUES (?, ?, ?, ?, ?)"
@@ -141,24 +144,28 @@ app.post("/tickets", authenticateToken, (req, res) => {
   res.json({ success: true, message: "Ticket created!" });
 });
 
-
 app.get("/tickets", authenticateToken, (req, res) => {
   let tickets;
 
   if (req.user.role === "admin") {
-    
-    tickets = db.prepare(
-      "SELECT idTicket, title, description, responded, response, username FROM tickets JOIN users ON tickets.user_id = users.id"
-    ).all();
+    tickets = db
+      .prepare(
+        "SELECT idTicket, title, description, responded,rating, response, username FROM tickets JOIN users ON tickets.user_id = users.id"
+      )
+      .all();
   } else {
-    
-    tickets = db.prepare(
-      "SELECT idTicket, title, description, responded, response, username FROM tickets JOIN users ON tickets.user_id = users.id WHERE user_id = ?"
-    ).all(req.user.id);
+    tickets = db
+      .prepare(
+        "SELECT idTicket, title, description, responded, response,rating, username FROM tickets JOIN users ON tickets.user_id = users.id WHERE user_id = ?"
+      )
+      .all(req.user.id);
   }
 
   res.json({ success: true, tickets });
 });
+
+// handle response by admin
+
 app.post("/tickets/respond", authenticateToken, (req, res) => {
   if (req.user.role !== "admin") {
     return res
@@ -167,16 +174,42 @@ app.post("/tickets/respond", authenticateToken, (req, res) => {
   }
 
   const { idTicket, response } = req.body;
-
+  if (response == "" || response == null || response == undefined) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Response cannot be empty." });
+  }
   try {
     db.prepare(
       "UPDATE tickets SET responded = 1, response = ? WHERE idTicket = ?"
     ).run(response, idTicket);
 
     res.json({ success: true, message: "Response submitted successfully." });
-    
   } catch (error) {
     console.error("Error submitting response:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+// handle rating
+
+app.post("/rating", authenticateToken, (req, res) => {
+  const { ticketid, rating } = req.body;
+
+  if (!rating || rating < 1 || rating > 5) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Rating must be between 1 and 5." });
+  }
+
+  try {
+    db.prepare("UPDATE tickets SET rating = ? WHERE idTicket = ?").run(
+      rating,
+      ticketid
+    );
+    res.json({ success: true, message: "Rating updated." });
+  } catch (err) {
+    console.error("Error submitting response:", err);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 });

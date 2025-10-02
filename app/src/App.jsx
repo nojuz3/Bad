@@ -6,6 +6,7 @@ import Login from "./comps/Login";
 import Nav from "./comps/Nav";
 import Content from "./comps/Content";
 import Overseer from "./comps/Overseer";
+import Footer from "./comps/Footer";
 
 function App() {
   useEffect(() => {
@@ -24,7 +25,12 @@ function App() {
           setUser(res.data.user);
         }
       })
-      .catch(() => setUser(null));
+      .catch((err) =>{
+        if (err.response && err.response.status === 401 || err.response.status === 403) {
+          localStorage.removeItem("token");
+          setUser(null);
+        }
+      });
   }, []);
 
   const [user, setUser] = useState(() => {
@@ -35,7 +41,7 @@ function App() {
   if (!user) {
     return (
       <>
-        <div style={{ filter: "blur(4px)" }}>
+        <div class="inactive">
           <Nav />
         </div>
         <Login />
@@ -48,6 +54,7 @@ function App() {
       <Nav />
       {user.role === "admin" && <Overseer />}
       {user.role === "user" && <Content />}
+      <Footer />
     </>
   );
 }

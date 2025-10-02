@@ -1,0 +1,97 @@
+.ticket-box *{
+    background-color: white;
+}
+.ticket{
+    gap: 5px;
+    width: 30vw;
+    max-height: 99vh;
+    overflow-y: auto;
+    border: 1px solid #3d3d3d;
+    border-radius: 5px;
+    box-shadow: 1px 1px 2px rgb(0, 0, 0);
+    padding: 10px;
+    box-sizing: border-box;
+}
+.display-buttons{
+    display: flex;
+    justify-content:center;
+    gap: 50px;
+    margin-bottom: 10px;
+    
+}
+
+.display-buttons button{
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.display-buttons button:hover{
+    background-color: #d4d4d4;
+}
+.ticket-box{
+    display: flex;
+    justify-content: center;
+    justify-self: center;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: wrap;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    
+}
+.overseer-desc{
+    font-size: 18px;
+    height: 80px;
+    overflow-y: auto;   
+    overflow-x: hidden; 
+    word-break: break-word; 
+}
+.overseer-res{
+    font-size: 18px;
+    height: 80px;
+    overflow-y: auto;   
+    overflow-x: hidden; 
+    word-break: break-word; 
+}
+
+.response-input{
+    width: 70%;
+    height: 5vh;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+}
+.response-submit{
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #00adcc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 25%;
+    height: 6vh;
+    float: right;
+}
+
+@media screen and (max-width: 800px) {
+  .ticket-box {
+    display: flex;
+
+    gap: 10px;
+    width: 100%;
+    max-height: 79vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  .ticket{
+    width: 100%;
+  }
+  .response-submit{
+    width: 24%;
+  }
+}
