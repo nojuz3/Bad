@@ -8,7 +8,7 @@ PORT= yourport
 <br>
 JWT_SECRET= yourjwt
 <br>
-DB_PATH= yourdatabaselocation/yourdatabse.db
+DB_PATH= yourdatabse.db
 <br>
 It has default values without .env file
 
