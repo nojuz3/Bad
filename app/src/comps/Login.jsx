@@ -14,7 +14,6 @@ function Login() {
   const fetchApi = async () => {
     const res = await axios.get("http://localhost:8080/api");
     setdata(res.data);
-    console.log(res.data);
   };
 
   // Run on load
@@ -41,7 +40,6 @@ function Login() {
         });
         setToken(res.data.token);
         //
-        console.log(res.data);
         if (res.data.success) {
           localStorage.setItem("token", res.data.token); // save JWT
           setLoggedin(true);

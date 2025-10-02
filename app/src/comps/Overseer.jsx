@@ -22,7 +22,6 @@ const Overseer = () => {
         setResolved(allTickets.filter((ticket) => ticket.responded === 1));
         setPending(allTickets.filter((ticket) => ticket.responded === 0));
         setCurrentTickets(allTickets);
-        console.log(allTickets);
       } catch (error) {
         console.error("Error fetching tickets:", error);
       }
@@ -103,7 +102,7 @@ const Overseer = () => {
                     class="response-input"
                     type="text"
                     placeholder="Response..."
-                    value={response[ticket.idTicket] || ""}
+                    value={response[ticket.idTicket] || ""} 
                     onChange={(e) =>
                       setResponse({
                         ...response,
