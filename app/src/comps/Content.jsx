@@ -8,7 +8,8 @@ const Content = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [view, setView] = useState("all")
-  // const [rating, setRating] = useState(0);
+  const [resolved, setResolved] = useState([]);
+  const [all , setAll] = useState([]);
 
 
   useEffect(() => {
@@ -19,6 +20,11 @@ const Content = () => {
             Authorization: `Bearer ${user}`,
           },
         });
+        const allTickets = res.data.tickets;
+
+        setRes(allTickets);
+        setResolved(allTickets.filter((ticket) => ticket.responded === 1));
+        setAll(allTickets)
         setRes(res.data);
       } catch (err) {}
     };
@@ -54,7 +60,7 @@ const Content = () => {
   };
 
   const Handlerating = async (ticketid, newrating) => {
-    const ticket = res.tickets.find((t) => t.idTicket === ticketid);
+    const ticket = res.find((t) => t.idTicket === ticketid);
 
     if (!ticket.response) {
       return;
@@ -70,37 +76,41 @@ const Content = () => {
           },
         }
       );
-      setRes((prev) => ({
-        ...prev,
-        tickets: prev.tickets.map((t) =>
+      setRes((prev) =>
+        prev.map((t) =>
           t.idTicket === ticketid ? { ...t, rating: newrating } : t
-        ),
-      }));
+        )
+      );
     } catch (err) {}
   };
 
   function swap(spec){
     if(spec == "all"){
-      setView("all")
+      setView("all");
+      setRes(all);
     }
-    else if(spec == "request"){
-      setView("request")
+    if(spec == "responded"){
+      setView("all");
+      setRes(resolved);
+    }
+    if(spec == "request"){
+      setView("request");
     }
   }
-
   return (
     <div class="content">
       <div class="swap-content">
-      <button onClick={(e) => swap("all")} class="content-button-nav"><h2>My Tickets</h2></button>
-      <button onClick={(e) => swap("request")} class="content-button-nav"><h2>Request</h2></button>
+      <button onClick={(e) => swap("all")} class="content-button-nav"><h2>All My Tickets</h2></button>
+      <button onClick={(e) => swap("responded")} class="content-button-nav"><h2>Responded Tickets</h2></button>
+      <button onClick={(e) => swap("request")} class="content-button-nav"><h2>Send a Request</h2></button>
 
       </div>
       {view === "all" &&
         <div class="mytickets">
-        {res.tickets && res.tickets.length === 0 && <p>No tickets found.</p>}
-        {res.tickets &&
-          res.tickets.map((ticket) => (
-            <div class="ticket" key={ticket.idTicket}>
+        {res && res.length === 0 && <p>No tickets found.</p>}
+        {res &&
+          res.map((ticket , index) => (
+            <div class="ticket" key={ticket.idTicket || index}>
               <h3>Title: {ticket.title}</h3>
               <p class="content-desc">Decription: {ticket.description}</p>
               <p class="content-response">Response: {ticket.response || "No response yet"}</p>

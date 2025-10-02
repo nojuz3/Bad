@@ -102,7 +102,7 @@ const Overseer = () => {
                     class="response-input"
                     type="text"
                     placeholder="Response..."
-                    value={response[ticket.idTicket] || ""}
+                    value={response[ticket.idTicket] || ""} 
                     onChange={(e) =>
                       setResponse({
                         ...response,
