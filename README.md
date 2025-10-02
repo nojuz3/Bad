@@ -1,6 +1,7 @@
 <h1>How to Launch</h1>
 <p>You need two terminals to launch the backend and frontend</p>
-<p>After using cd to get to the back and app directory you need to run in the terminal npm run dev both of them</p>
+<p>After using cd to get to the back and app directory you need to run in the terminal <strong> [npm run dev ]</strong> in both app and back</p>
+
 
 
 <h2>.env format</h2>
