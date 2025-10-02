@@ -9,7 +9,7 @@ const cors = require("cors");
 app.use(express.json());
 
 const PORT = process.env.PORT || 8080;
-const JWT_SECRET = process.env.JWT_SECRET || JSW;
+const JWT_SECRET = process.env.JWT_SECRET || "JSW";
 
 // Create Table of users
 db.prepare(

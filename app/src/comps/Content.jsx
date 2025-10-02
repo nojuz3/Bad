@@ -25,6 +25,7 @@ const Content = () => {
         setRes(allTickets);
         setResolved(allTickets.filter((ticket) => ticket.responded === 1));
         setAll(allTickets)
+        setRes(res.data);
       } catch (err) {}
     };
     fetchData();
