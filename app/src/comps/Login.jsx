@@ -14,7 +14,6 @@ function Login() {
   const fetchApi = async () => {
     const res = await axios.get("http://localhost:8080/api");
     setdata(res.data);
-    console.log(res.data);
   };
 
   // Run on load
