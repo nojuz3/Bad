@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { use } from "react";
-
 const Content = () => {
   const user = localStorage.getItem("token");
   const [res, setRes] = useState([]);
