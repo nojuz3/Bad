@@ -19,7 +19,6 @@ const Content = () => {
             Authorization: `Bearer ${user}`,
           },
         });
-        console.log(res.data);
         setRes(res.data);
       } catch (err) {}
     };
