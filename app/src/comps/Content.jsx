@@ -7,6 +7,9 @@ const Content = () => {
   const [res, setRes] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [view, setView] = useState("all")
+  // const [rating, setRating] = useState(0);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +28,9 @@ const Content = () => {
 
   const handlepost = async (e) => {
     e.preventDefault();
+    if (title == "" || description == "") {
+      alert("Please fill in the title and description");
+    }
     try {
       await axios.post(
         "http://localhost:8080/tickets",
@@ -35,6 +41,12 @@ const Content = () => {
           },
         }
       );
+      const updated = await axios.get("http://localhost:8080/tickets", {
+        headers: {
+          Authorization: `Bearer ${user}`,
+        },
+      });
+      setRes(updated.data);
     } catch (error) {
       console.log(error);
     }
@@ -42,20 +54,82 @@ const Content = () => {
     setDescription("");
   };
 
+  const Handlerating = async (ticketid, newrating) => {
+    const ticket = res.tickets.find((t) => t.idTicket === ticketid);
+
+    if (!ticket.response) {
+      return;
+    }
+
+    try {
+      await axios.post(
+        "http://localhost:8080/rating",
+        { ticketid, rating: newrating },
+        {
+          headers: {
+            Authorization: `bearer ${user}`,
+          },
+        }
+      );
+      setRes((prev) => ({
+        ...prev,
+        tickets: prev.tickets.map((t) =>
+          t.idTicket === ticketid ? { ...t, rating: newrating } : t
+        ),
+      }));
+    } catch (err) {}
+  };
+
+  function swap(spec){
+    if(spec == "all"){
+      setView("all")
+    }
+    else if(spec == "request"){
+      setView("request")
+    }
+  }
+
   return (
     <div class="content">
-      <div class="mytickets">
-        <h2>My Tickets</h2>
-        {res.tickets && res.tickets.length === 0 && <p>No tickets found.</p>}
-        {res.tickets && res.tickets.map((ticket) => (
-          <div class="ticket" key={ticket.idTicket}>
-            <h3>Title: {ticket.title}</h3>
-            <p>Decription: {ticket.description}</p>
-            <p>Response: {ticket.response || "No response yet"}</p>
-          </div>
-        ))}
+      <div class="swap-content">
+      <button onClick={(e) => swap("all")} class="content-button-nav"><h2>My Tickets</h2></button>
+      <button onClick={(e) => swap("request")} class="content-button-nav"><h2>Request</h2></button>
+
       </div>
-      <div className="content-container">
+      {view === "all" &&
+        <div class="mytickets">
+        {res.tickets && res.tickets.length === 0 && <p>No tickets found.</p>}
+        {res.tickets &&
+          res.tickets.map((ticket) => (
+            <div class="ticket" key={ticket.idTicket}>
+              <h3>Title: {ticket.title}</h3>
+              <p class="content-desc">Decription: {ticket.description}</p>
+              <p class="content-response">Response: {ticket.response || "No response yet"}</p>
+              {ticket.response && (
+                <div class="content-rating">
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <button class="el-rating"
+                      style={{
+                        color: num <= (ticket.rating || 0) ? "gold" : "gray",
+                        fontSize: "20px",
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                      }}
+                      key={num}
+                      onClick={() => Handlerating(ticket.idTicket, num)}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+      </div>
+      }
+      {view === "request" &&
+        <div className="content-container">
         <label for="title">Title:</label>
         <input
           name="title"
@@ -77,6 +151,8 @@ const Content = () => {
         />
         <button onClick={handlepost}>Submit</button>
       </div>
+      }
+      
     </div>
   );
 };

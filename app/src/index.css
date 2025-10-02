@@ -1,9 +1,24 @@
 @import url('../src/style/Login.css');
 @import url('../src/style/Nav.css');
 @import url('../src/style/Content.css');
+@import url('../src/style/Overseer.css');
+@import url('../src/style/Footer.css');
 
 *{
     font-family: 'Arial', sans-serif;
+    
 }
-#root{
+html{
+    background-color: rgb(88, 88, 88);
+}
+
+.inactive{
+
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+body{
+    margin: 0;
+    padding: 0;
 }

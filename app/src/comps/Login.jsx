@@ -83,7 +83,7 @@ function Login() {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button onClick={handleSubmit}>{isLogin ? "Login" : "Register"}</button>
+      <button class="login-button" onClick={handleSubmit}>{isLogin ? "Login" : "Register"}</button>
       <p>
         {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
         <button

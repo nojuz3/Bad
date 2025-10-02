@@ -4,6 +4,11 @@ import axios from "axios";
 const Overseer = () => {
   const [tickets, setTickets] = useState([]);
   const [response, setResponse] = useState("");
+  const [resolved, setResolved] = useState([]);
+  const [pending, setPending] = useState([]);
+
+  const [currentTickets, setCurrentTickets] = useState([tickets]);
+  const [current, setCurrent] = useState("all"); // all, pending, resolved
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -11,7 +16,13 @@ const Overseer = () => {
         const res = await axios.get("http://localhost:8080/tickets", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        setTickets(res.data);
+        const allTickets = res.data.tickets;
+
+        setTickets(allTickets);
+        setResolved(allTickets.filter((ticket) => ticket.responded === 1));
+        setPending(allTickets.filter((ticket) => ticket.responded === 0));
+        setCurrentTickets(allTickets);
+        console.log(allTickets);
       } catch (error) {
         console.error("Error fetching tickets:", error);
       }
@@ -21,13 +32,7 @@ const Overseer = () => {
   }, []);
 
   const handleResponse = async (idTicket) => {
-    console.log(
-      "Responding to ticket ID:",
-      idTicket,
-      "with response:",
-      response[idTicket]
-    );
-    setResponse({ ...response, [idTicket]: "" });
+    if (!response[idTicket] || response[idTicket].trim() === "") return;
     try {
       await axios.post(
         "http://localhost:8080/tickets/respond",
@@ -36,45 +41,93 @@ const Overseer = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      window.location.reload();
+
+      const res = await axios.get("http://localhost:8080/tickets", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const allTickets = res.data.tickets;
+      setTickets(allTickets);
+      setResolved(allTickets.filter((ticket) => ticket.responded === 1));
+      setPending(allTickets.filter((ticket) => ticket.responded === 0));
+      setCurrentTickets(allTickets);
     } catch (error) {
       console.error("Error submitting response:", error);
     }
   };
-
+  // setting display based on the button clicked
+  const display = (type) => {
+    if (type === "all") {
+      setCurrent("all");
+      setCurrentTickets(tickets);
+    }
+    if (type === "pending") {
+      setCurrent("pending");
+      setCurrentTickets(pending);
+    }
+    if (type === "resolved") {
+      setCurrent("resolved");
+      setCurrentTickets(resolved);
+    }
+  };
   return (
     <div>
-      <h2>All Tickets</h2>
-      {tickets.tickets && tickets.tickets.length === 0 && (
+      {/* Display Buttons */}
+      <div class="display-buttons">
+        <button onClick={() => display("all")}>
+          <h2>All Tickets</h2>
+        </button>
+        <button onClick={() => display("pending")}>
+          <h2>Pending Tickets</h2>
+        </button>
+        <button onClick={() => display("resolved")}>
+          <h2>Resolved Tickets</h2>
+        </button>
+      </div>
+
+      {currentTickets && currentTickets.length === 0 && (
         <p>No tickets found.</p>
       )}
-      {tickets.tickets &&
-        tickets.tickets.map((ticket) => (
-          <div className="ticket" key={ticket.idTicket}>
-            <h3>Title: {ticket.title}</h3>
-            <p>Description: {ticket.description}</p>
-            <p>Submitted by: {ticket.username}</p>
-            <p>Response: {ticket.response || "No response yet"}</p>
-            {!ticket.response && (
-              <div>
-                <input
-                  type="text"
-                  placeholder="Response..."
-                  value={response[ticket.idTicket] || ""}
-                  onChange={(e) =>
-                    setResponse({
-                      ...response,
-                      [ticket.idTicket]: e.target.value,
-                    })
-                  }
-                />
-                <button onClick={() => handleResponse(ticket.idTicket)}>
-                  Submit Response
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+      <div class="ticket-box">
+        {currentTickets &&
+          currentTickets.map((ticket, index) => (
+            <div className="ticket" key={ticket.idTicket || index}>
+              <h3>Title: {ticket.title}</h3>
+              <p class="overseer-desc">Description: {ticket.description}</p>
+              <p>Submitted by: {ticket.username}</p>
+              <p class="overseer-res">
+                Response: {ticket.response || "No response yet"}
+              </p>
+              {!ticket.response && (
+                <div>
+                  <textarea
+                    class="response-input"
+                    type="text"
+                    placeholder="Response..."
+                    value={response[ticket.idTicket] || ""}
+                    onChange={(e) =>
+                      setResponse({
+                        ...response,
+                        [ticket.idTicket]: e.target.value,
+                      })
+                    }
+                  />
+
+                  <button
+                    class="response-submit"
+                    onClick={() => handleResponse(ticket.idTicket)}
+                  >
+                    Submit Response
+                  </button>
+                </div>
+              )}
+              {ticket.rating > 0 ? (
+                <p class="rating-o">Your response got {ticket.rating}★</p> // displays rating if above 0
+              ) : (
+                <p class="rating-o">No rating</p> // displays if 0 or less
+              )}
+            </div>
+          ))}
+      </div>
     </div>
   );
 };
