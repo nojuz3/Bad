@@ -17,6 +17,7 @@ db.prepare(
     CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role TEXT NOT NULL
   )`
@@ -47,12 +48,12 @@ db.prepare(
   if (!userExists) {
     const adminpass = await bcrypt.hash("admin123", 10);
     db.prepare(
-      "INSERT INTO users (username, password, role) VALUES (?, ?, ?)"
-    ).run("admin", adminpass, "admin");
+      "INSERT INTO users (username,email ,password, role) VALUES (?, ?, ?, ?)"
+    ).run("admin", "admin@mail.com", adminpass, "admin");
   }
 })();
 
-const users = db.prepare("SELECT id, username, role FROM users").all();
+const users = db.prepare("SELECT id, username, email, role FROM users").all();
 console.log(users);
 
 const corsOptions = {
@@ -66,14 +67,29 @@ app.get("/api", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const { username, password, role } = req.body;
+  const { username, email, password, role } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields (username, email, password) are required.",
+    });
+  }
 
   try {
-    const hashPassword = await bcrypt.hash(req.body.password, 10);
+    const existinguser = db
+      .prepare("SELECT * FROM users WHERE  username = ? OR email = ?")
+      .get(username, email);
+    if (existinguser) {
+      return res
+        .status(400)
+        .json({ success: false, message: "The email exists" });
+    }
 
+    const hashPassword = await bcrypt.hash(req.body.password, 10);
     db.prepare(
-      "INSERT INTO users (username, password, role) VALUES (?, ?, ?)"
-    ).run(username, hashPassword, role);
+      "INSERT INTO users (username, email, password, role) VALUES (?, ? , ?, ?)"
+    ).run(username, email, hashPassword, role);
 
     res.json({ success: true, message: "User created!" });
   } catch (err) {
@@ -135,7 +151,7 @@ app.get("/me", authenticateToken, (req, res) => {
 
 app.post("/tickets", authenticateToken, (req, res) => {
   const { title, description } = req.body;
-  if( title == "" || description == "") return;
+  if (title == "" || description == "") return;
 
   db.prepare(
     "INSERT INTO tickets (title, description, rating, responded, user_id) VALUES (?, ?, ?, ?, ?)"
@@ -150,7 +166,7 @@ app.get("/tickets", authenticateToken, (req, res) => {
   if (req.user.role === "admin") {
     tickets = db
       .prepare(
-        "SELECT idTicket, title, description, responded,rating, response, username FROM tickets JOIN users ON tickets.user_id = users.id"
+        "SELECT idTicket, title, description, responded,rating, response, username, user_id FROM tickets JOIN users ON tickets.user_id = users.id"
       )
       .all();
   } else {
@@ -162,6 +178,35 @@ app.get("/tickets", authenticateToken, (req, res) => {
   }
 
   res.json({ success: true, tickets });
+});
+// ticket edit
+
+app.put("/tickets/:id", authenticateToken, (req, res) => {
+  const { id } = req.params;
+  const { title, description } = req.body;
+  if (!title || !description) {
+    return res
+      .status(400)
+      .json({ success: false, message: "title and desc required" });
+  }
+  const ticket = db.prepare("SELECT * FROM tickets WHERE idTicket = ?").get(id);
+
+  if (!ticket) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Ticket not found" });
+  }
+  if (ticket.user_id !== req.user.id) {
+    return res.status(403).json({ success: false, message: "Access denied." });
+  }
+  try {
+    db.prepare(
+      "UPDATE tickets SET title = ?, description = ? WHERE idTicket = ?"
+    ).run(title, description, id);
+    res.json({ success: true, message: "update complete" });
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 // handle response by admin
@@ -190,6 +235,35 @@ app.post("/tickets/respond", authenticateToken, (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
+// users
+app.get("/user", authenticateToken, (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ success: false, message: "Access denied" });
+  }
+
+  try {
+    const users = db.prepare("SELECT id, username ,email, role FROM users WHERE NOT username = 'admin'").all();
+    res.json({ success: true, users });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+// role
+
+app.post("/updateRole", authenticateToken, (req,res) =>{
+  if (req.user.role !== "admin"){
+    return res.status(403).json({success: false, message: "Access denied"})
+  }
+  const {id, role} = req.body;
+  if (!id || !role){return;}
+  try{
+    db.prepare("UPDATE users SET role = ? WHERE id = ?").run(role,id)
+  }catch(err){
+    return res.status(500).json({success: false, message: "Internal server error"})
+  }
+})
 
 // handle rating
 
@@ -214,6 +288,24 @@ app.post("/rating", authenticateToken, (req, res) => {
   }
 });
 
+app.post("/delete", authenticateToken, (req, res) => {
+  const { ticketid } = req.body;
+  check = db
+    .prepare("SELECT idTicket, responded FROM tickets WHERE idTIcket = ? ")
+    .get(ticketid);
+
+  if (!check) {
+    return res.status(404).json({ message: "Ticket not found." });
+  }
+  if (check === 1) {
+    return res
+      .status(400)
+      .json({ message: "Cannot delete a ticket that has been responded to." });
+  }
+  db.prepare("DELETE FROM tickets WHERE idTicket = ?").run(ticketid);
+  return res.json({ message: "ticket was deleted" });
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
@@ -227,3 +319,4 @@ app.listen(PORT, () => {
 // db.prepare("DELETE FROM sqlite_sequence WHERE name = 'tickets'").run();
 
 // db.prepare('DROP TABLE IF EXISTS tickets').run();
+// db.prepare('DROP TABLE IF EXISTS users').run();

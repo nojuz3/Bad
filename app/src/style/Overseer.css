@@ -77,7 +77,56 @@
     height: 6vh;
     float: right;
 }
+.button-delete-overseer{
+    cursor: pointer;
+}
+.button-delete-overseer:hover{
+    background-color: rgb(221, 221, 221);
+}
+.select-overseer{
+    display: flex;
+    justify-content: center;
+    min-height: 4vh;
+    font-size: 5px;  
+}
+.user-container{
+      display: flex;
+  flex-wrap: nowrap;        /* keep on a single line */
+  overflow-x: auto;         /* scroll horizontally if too many */
+  gap: 16px;                /* space between users */
+  padding: 10px;
+  scrollbar-width: thin;  
+}
+.users{
+      min-width: 220px;
+  flex: 0 0 auto;           /* prevent shrinking */
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+.users:hover {
+  transform: scale(1.05);
+}
 
+/* Label and select styling */
+.users label {
+  display: block;
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+.users select {
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  cursor: pointer;
+}
 @media screen and (max-width: 800px) {
   .ticket-box {
     display: flex;
