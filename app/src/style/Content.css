@@ -64,6 +64,11 @@
     overflow-y: auto;
     box-sizing: border-box;
 }
+.content-select{
+    float: right;
+    min-width: 10%;
+    min-height: 3vh;
+}
 .ticket{
     min-height: fit-content;
 
@@ -117,4 +122,12 @@
     word-break: break-word; /* wrap long words */
     padding: 10px;
 }
+.content-select{
+    float: right;
+    min-width: 100%;
+    min-height: 8vh;
+    font-size: 20px;  
+    padding: 14px 18px;
+}
+
 }
