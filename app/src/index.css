@@ -3,6 +3,7 @@
 @import url('../src/style/Content.css');
 @import url('../src/style/Overseer.css');
 @import url('../src/style/Footer.css');
+@import url('../src/style/Faq.css');
 
 *{
     font-family: 'Arial', sans-serif;

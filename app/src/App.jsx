@@ -8,10 +8,13 @@ import Content from "./comps/Content";
 import Overseer from "./comps/Overseer";
 import Footer from "./comps/Footer";
 
+
 function App() {
+
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token){
+    if (!token) {
       localStorage.removeItem("token");
       return;
     }
@@ -25,8 +28,11 @@ function App() {
           setUser(res.data.user);
         }
       })
-      .catch((err) =>{
-        if (err.response && err.response.status === 401 || err.response.status === 403) {
+      .catch((err) => {
+        if (
+          (err.response && err.response.status === 401) ||
+          err.response.status === 403
+        ) {
           localStorage.removeItem("token");
           setUser(null);
         }
@@ -54,6 +60,7 @@ function App() {
       <Nav />
       {user.role === "admin" && <Overseer />}
       {user.role === "user" && <Content />}
+
       <Footer />
     </>
   );

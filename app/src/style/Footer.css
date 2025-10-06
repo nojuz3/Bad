@@ -7,3 +7,10 @@
     bottom: 0;
     z-index: 100;
 }
+.faq-btn{
+    background-color: rgb(204, 204, 204);
+}
+.faq-btn:hover{
+    background-color: rgb(134, 134, 134);
+    cursor: pointer;
+}

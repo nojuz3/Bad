@@ -65,7 +65,8 @@
     box-sizing: border-box;
 }
 .content-select{
-    float: right;
+    display: flex;
+    justify-self: center;
     min-width: 10%;
     min-height: 3vh;
 }
