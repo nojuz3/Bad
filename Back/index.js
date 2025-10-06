@@ -215,7 +215,7 @@ app.post("/tickets/respond", authenticateToken, (req, res) => {
   if (req.user.role !== "admin") {
     return res
       .status(403)
-      .json({ success: false, message: "Access denied. Admins only." });
+      .json({ success: false, message: "Access denied." });
   }
 
   const { idTicket, response } = req.body;

@@ -16,6 +16,7 @@ const Overseer = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         const allTickets = res.data.tickets;
+        allTickets.sort((a,b) => b.idTicket - a.idTicket)
         setTickets(allTickets);
         setCurrentTickets(allTickets);
       } catch (error) {
@@ -76,7 +77,6 @@ const Overseer = () => {
     }
     return filtered;
   }
-
   // delete button function
   const HandleDelete = async (ticketid) => {
     const confirmed = window.confirm(
